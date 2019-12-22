@@ -33,7 +33,7 @@ class Board():
         self.screen.blit(self.boardImg, (0, 0))
         self.cube.render()
         [pawn.render() for pawn in self.pawns]
-        if self.cube.currentRandomRolls > 0:
+        if self.cube.currentFrame > 0:
             self.cube.rollAnimation()
         if self.ended:
             self.renderWiner(self.winner)
@@ -78,7 +78,7 @@ class Board():
         if self.ended:
             return
         if self.cube.isClicked(x, y):
-            if self.cube.currentRandomRolls <= 0:
+            if self.cube.currentFrame <= 0:
                 self.cube.roll()
         for pawn in self.pawns:
             if pawn.isInGame(x, y):
