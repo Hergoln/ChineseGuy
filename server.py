@@ -58,6 +58,7 @@ class Server:
 		self.currentPlayer = 0;
 		self.inGame = False
 		self.currentCubeValue = 0
+		self.cubeRolled = False
 		self.is_listening_for_new_players = False;
 		print("Setting up server socket")
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -77,14 +78,15 @@ class Server:
 				except:
 					self.is_listening_for_new_players = False
 					print("Server socket closed")
-					break		
-				new_client = Client(self)
-				new_client.setAddress(client_address)
-				new_client.setConnection(connection)
-				new_client.startListening()
-				self.clients_list.append(new_client)
-				self.sendColor(new_client)
-				print("New client connected")
+					break
+				if(self.inGame == False):
+					new_client = Client(self)
+					new_client.setAddress(client_address)
+					new_client.setConnection(connection)
+					new_client.startListening()
+					self.clients_list.append(new_client)
+					self.sendColor(new_client)
+					print("New client connected")
 			else:
 				time.sleep(1)
 
@@ -93,9 +95,10 @@ class Server:
 			self.currentPlayer = 0
 		else:
 			self.currentPlayer = self.currentPlayer + 1
+		self.cubeRolled = False
 
 	def sendMovement(self, sender, data):
-		if(self.clients_list[self.currentPlayer] == sender and self.inGame == True):
+		if(self.clients_list[self.currentPlayer] == sender and self.inGame == True and self.cubeRolled == True):
 			for client in self.clients_list:
 				client.send(data)
 			self.giveControllToNextPlayer()
@@ -105,8 +108,9 @@ class Server:
 
 	def sendCubeValue(self, sender, data):
 		self.inGame = True
-		if(self.clients_list[self.currentPlayer] == sender):
+		if(self.clients_list[self.currentPlayer] == sender and self.cubeRolled == False):
 			self.currentCubeValue = random.randint(1, 6)
+			self.cubeRolled = True
 			for client in self.clients_list:				
 				client.send(pack('hhii', int(PacketType.CUBE_REQUEST), self.currentCubeValue, 0, 0))
 
