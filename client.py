@@ -25,4 +25,7 @@ class Connection:
 		return self.sock.recv(1024)
 
 	def close(self):
-		self.sock.close()
+		try:
+			self.sock.shutdown(socket.SHUT_RDWR)
+		except:
+			print("Disconnected")

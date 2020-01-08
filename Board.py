@@ -108,8 +108,7 @@ class Board():
             data = self.connection.receive()
             try:
                 packet_type, value, x, y = unpack('hhii', data)
-            except:
-                print("Disconnected")
+            except:                
                 self.shutDown()
                 pygame.event.post(pygame.event.Event(pygame.QUIT))
                 break
@@ -127,7 +126,6 @@ class Board():
     def reset(self):
         for pawn in self.pawns:
             pawn.reset()
-
 
     def shutDown(self):
         self.connection.close()

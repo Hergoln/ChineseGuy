@@ -123,6 +123,7 @@ class Server:
 		self.sock.shutdown(socket.SHUT_RDWR)
 
 	def reset(self):
+		self.inGame == False
 		for client in self.clients_list:
 			client.send(pack('hhii', PacketType.RESET, 0, 0, 0))
 
