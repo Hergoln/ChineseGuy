@@ -72,23 +72,22 @@ class Server:
 	def connectPlayers(self):
 		self.is_listening_for_new_players = True
 		while self.is_listening_for_new_players:
+			try:
+				connection, client_address = self.sock.accept()
+			except:
+				self.is_listening_for_new_players = False
+				print("Server socket closed")
+				break
 			if(len(self.clients_list) < 4 and self.inGame == False):
-				try:
-					connection, client_address = self.sock.accept()
-				except:
-					self.is_listening_for_new_players = False
-					print("Server socket closed")
-					break
-				if(self.inGame == False):
-					new_client = Client(self)
-					new_client.setAddress(client_address)
-					new_client.setConnection(connection)
-					new_client.startListening()
-					self.clients_list.append(new_client)
-					self.sendColor(new_client)
-					print("New client connected")
+				new_client = Client(self)
+				new_client.setAddress(client_address)
+				new_client.setConnection(connection)
+				new_client.startListening()
+				self.clients_list.append(new_client)
+				self.sendColor(new_client)
+				print("New client connected")
 			else:
-				time.sleep(1)
+				connection.close()
 
 	def giveControllToNextPlayer(self):
 		if(self.currentPlayer + 1 >= len(self.clients_list)):
