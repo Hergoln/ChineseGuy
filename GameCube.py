@@ -17,9 +17,9 @@ class GameCube:
     def render(self):
         self.board.screen.blit(self.cubeImg, (self.posX, self.posY))
 
-    def roll(self):
+    def roll(self, value):
         self.currentFrame = self.board.tickrate // 2
-        self.value = random.randint(1, 6)
+        self.value = value
         self.cubeImg = pygame.transform.scale(
             pygame.image.load('gfx/' + str(self.value) + '.png').convert(), (self.size, self.size)
         )
@@ -31,7 +31,7 @@ class GameCube:
         return False
 
     def rollAnimation(self):
-        self.value = random.randint(1, 6)
+        # self.value = random.randint(1, 6)
         self.cubeImg = pygame.transform.scale(
             pygame.image.load('gfx/' + str(self.value) + '.png').convert(), (self.size, self.size)
         )

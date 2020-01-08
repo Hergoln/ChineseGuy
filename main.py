@@ -15,6 +15,7 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+            board.shutDown()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             (x, y) = event.pos
             board.handleMouseClick(x, y)

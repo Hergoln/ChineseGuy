@@ -120,6 +120,9 @@ class Pawn:
             )
         )
 
+    def getColor(self):
+        return self.color
+
     def throwIntoGame(self):
         if self.fieldPosArr[(3 * 10 * (self.color - 1) + 2) % len(self.fieldPosArr)] != 0:
             self.board.beatPawn((10 * (self.color - 1)) % (len(self.fieldPosArr) // 3))
