@@ -1,15 +1,22 @@
 import pygame
 from Pawn import Pawn
 from GameCube import GameCube
-
+from struct import *
+from client import Connection
+from client import PacketType
+import threading
 
 class Board():
     winnerColorText = ['BLUE', 'GREEN', 'YELLOW', 'RED']
     colors = [(0, 0, 255), (0, 255, 0), (255, 255, 0), (255, 0, 0)]
 
     def __init__(self, boardImgPath, screen, tickrate):
+        self.connection = Connection()
+        self.communication_listening_thread = threading.Thread(target=self.communicationListeningFunction, args=())
+        self.communication_listening_thread.start()
         self.screen = screen
         self.tickrate = tickrate
+        self.myColor = 0
         self.boardImg = pygame.transform.scale(
             pygame.image.load(boardImgPath).convert(), (screen.get_width(), screen.get_height())
         )
@@ -79,9 +86,48 @@ class Board():
             return
         if self.cube.isClicked(x, y):
             if self.cube.currentFrame <= 0:
-                self.cube.roll()
+                self.connection.requestCubeValue()
+        else:
+            for pawn in self.pawns:
+                if (pawn.getColor() == self.color):
+                    if pawn.isInGame(x, y) or pawn.isInHome(x, y):
+                        self.connection.sendMovement(self.cube.value, x, y)
+  
+    def handleMovementFunction(self, cube_value, x, y):
         for pawn in self.pawns:
             if pawn.isInGame(x, y):
-                pawn.move(self.cube.value)
+                    pawn.move(cube_value)
             elif pawn.isInHome(x, y):
                 pawn.throwIntoGame()
+
+    def handleCubeValueResponse(self, value):
+        self.cube.roll(value)
+
+    def communicationListeningFunction(self):
+        while True:
+            data = self.connection.receive()
+            try:
+                packet_type, value, x, y = unpack('hhii', data)
+            except:
+                print("Disconnected")
+                self.shutDown()
+                pygame.event.post(pygame.event.Event(pygame.QUIT))
+                break
+            if(packet_type == PacketType.MOVEMENT):
+                self.handleMovementFunction(value, x, y)
+            elif(packet_type == PacketType.CUBE_REQUEST):
+                if self.cube.currentFrame <= 0:
+                    self.handleCubeValueResponse(value)
+            elif(packet_type == PacketType.COLOR_INFO):
+                self.color = value
+                print(self.color)
+            elif(packet_type == PacketType.RESET):
+                self.reset()
+
+    def reset(self):
+        for pawn in self.pawns:
+            pawn.reset()
+
+
+    def shutDown(self):
+        self.connection.close()
