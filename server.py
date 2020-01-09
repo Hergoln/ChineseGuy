@@ -11,6 +11,7 @@ class PacketType(IntEnum):
 		CUBE_REQUEST = 2
 		COLOR_INFO = 3
 		RESET = 4
+		NEXT_PLAYER = 5
 
 class Client:
 	def __init__(self, parrent):
@@ -90,11 +91,14 @@ class Server:
 				connection.close()
 
 	def giveControllToNextPlayer(self):
+		time.sleep(1.5)
 		if(self.currentPlayer + 1 >= len(self.clients_list)):
 			self.currentPlayer = 0
 		else:
 			self.currentPlayer = self.currentPlayer + 1
 		self.cubeRolled = False
+		for client in self.clients_list:				
+			client.send(pack('hhii', int(PacketType.NEXT_PLAYER), self.currentPlayer + 1 , 0, 0))
 
 	def sendMovement(self, sender, data):
 		if(self.clients_list[self.currentPlayer] == sender and self.inGame == True and self.cubeRolled == True):

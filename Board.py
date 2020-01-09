@@ -46,6 +46,7 @@ class Board():
             self.renderWiner(self.winner)
         else:
             self.renderCurrentPlayer()
+            self.renderPlayer()
 
     def beatPawn(self, index):
         for pawn in self.pawns:
@@ -77,9 +78,26 @@ class Board():
         pygame.font.init()
         font = pygame.font.SysFont(None, 50)
         self.screen.blit(
-            font.render(self.winnerColorText[self.player - 1], True, self.colors[self.player - 1]),
-            (self.screen.get_width() * 0.1,
+            font.render("Now ", True, (0, 0, 0)),
+            (self.screen.get_width() * 0.02,
              self.screen.get_height() * 0.7))
+        self.screen.blit(
+            font.render(self.winnerColorText[self.player - 1], True, self.colors[self.player - 1]),
+            (self.screen.get_width() * 0.15,
+             self.screen.get_height() * 0.7))
+
+
+    def renderPlayer(self):
+        pygame.font.init()
+        font = pygame.font.SysFont(None, 50)
+        self.screen.blit(
+            font.render("You ", True, (0, 0, 0)),
+            (self.screen.get_width() * 0.02,
+             self.screen.get_height() * 0.2))
+        self.screen.blit(
+            font.render(self.winnerColorText[self.color - 1], True, self.colors[self.color - 1]),
+            (self.screen.get_width() * 0.15,
+             self.screen.get_height() * 0.2))
 
     def handleMouseClick(self, x, y):
         if self.ended:
@@ -119,9 +137,14 @@ class Board():
                     self.handleCubeValueResponse(value)
             elif(packet_type == PacketType.COLOR_INFO):
                 self.color = value
+                # self.player = value
                 print(self.color)
             elif(packet_type == PacketType.RESET):
                 self.reset()
+            elif(packet_type == PacketType.NEXT_PLAYER):
+                print(value)
+                self.player = value
+
 
     def reset(self):
         for pawn in self.pawns:
